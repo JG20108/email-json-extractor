@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { simpleParser, ParsedMail } from 'mailparser';
+import { simpleParser } from 'mailparser';
 import * as fs from 'fs';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
@@ -13,12 +13,11 @@ import {
 export class EmailParserService {
   private readonly logger = new Logger(EmailParserService.name);
 
-  async parseEmailAndExtractJson(path: string): Promise<ParsedEmailDto> {
+  async parseEmailAndExtractJson(filePath: string): Promise<ParsedEmailDto> {
     try {
-      this.logger.log(`Parsing email from path: ${path}`);
-      const email = await this.parseEmail(path);
+      this.logger.log(`Parsing email from path: ${filePath}`);
+      const email = await this.parseEmail(filePath);
 
-      // Modify the JSON parsing logic to be more permissive
       const jsonContent = await this.extractJsonContent(email);
       if (jsonContent) {
         return { jsonContent };
@@ -27,17 +26,17 @@ export class EmailParserService {
       this.logger.warn('No JSON found in email');
       throw new HttpException('No JSON found in email', HttpStatus.NOT_FOUND);
     } catch (error) {
-      this.logger.error(`Error parsing email: ${error.message}`);
       if (error instanceof HttpException) {
         throw error;
       }
+      this.logger.error(`Error parsing email: ${error.message}`);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  private async parseEmail(path: string): Promise<ParsedEmail> {
+  private async parseEmail(filePath: string): Promise<ParsedEmail> {
     try {
-      const emailContent = await fs.promises.readFile(path);
+      const emailContent = await fs.promises.readFile(filePath);
       return simpleParser(emailContent);
     } catch (error) {
       this.logger.error(`Error reading email file: ${error.message}`);

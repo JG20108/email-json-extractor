@@ -3,6 +3,7 @@ import { EmailParserService } from './email-parser.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import * as fs from 'fs';
 import axios from 'axios';
+import * as path from 'path';
 
 jest.mock('fs', () => ({
   promises: {
@@ -41,14 +42,10 @@ describe('EmailParserService', () => {
         attachments: [mockAttachment],
         text: '',
       };
-      (fs.promises.readFile as jest.Mock).mockResolvedValue(
-        'mock email content',
-      );
-      (require('mailparser').simpleParser as jest.Mock).mockResolvedValue(
-        mockEmail,
-      );
+      (fs.promises.readFile as jest.Mock).mockResolvedValue('mock email content');
+      (require('mailparser').simpleParser as jest.Mock).mockResolvedValue(mockEmail);
 
-      const result = await service.parseEmailAndExtractJson('test.eml');
+      const result = await service.parseEmailAndExtractJson(path.join('test', 'test.eml'));
       expect(result).toEqual({ jsonContent: { test: 'data' } });
     });
 

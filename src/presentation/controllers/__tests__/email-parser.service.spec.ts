@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EmailParserService } from './email-parser.service';
+import { EmailParserService } from '../../../email-parser/email-parser.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import * as fs from 'fs';
 import axios from 'axios';

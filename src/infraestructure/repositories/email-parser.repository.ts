@@ -1,50 +1,30 @@
-import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { simpleParser } from 'mailparser';
-import * as fs from 'fs';
-import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { ParsedEmailDto } from './dto/parsed-email.dto';
 import {
-  ParsedEmail,
-  EmailAttachment,
-} from './interfaces/email-parser.interface';
+  IEmailParserRepository,
+  IFileSystem,
+  IHttpClient,
+} from '../../domain/interfaces/email-parser.interface';
+import { ParsedEmail } from '../../domain/entities/parsed-email.entity';
 
 @Injectable()
-export class EmailParserService {
-  private readonly logger = new Logger(EmailParserService.name);
+export class EmailParserRepository implements IEmailParserRepository {
+  private readonly logger = new Logger(EmailParserRepository.name);
 
-  async parseEmailAndExtractJson(filePath: string): Promise<ParsedEmailDto> {
-    try {
-      this.logger.log(`Parsing email from path: ${filePath}`);
-      const email = await this.parseEmail(filePath);
+  constructor(
+    private readonly fileSystem: IFileSystem,
+    private readonly httpClient: IHttpClient,
+  ) {}
 
-      const jsonContent = await this.extractJsonContent(email);
-      if (jsonContent) {
-        return { jsonContent };
-      }
-
-      this.logger.warn('No JSON found in email');
-      throw new HttpException('No JSON found in email', HttpStatus.NOT_FOUND);
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      this.logger.error(`Error parsing email: ${error.message}`);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async parseEmail(filePath: string): Promise<ParsedEmail> {
+    const emailContent = await this.fileSystem.readFile(filePath);
+    const parsedEmail = await simpleParser(emailContent);
+    const jsonContent = await this.extractJsonContent(parsedEmail);
+    return new ParsedEmail(jsonContent);
   }
 
-  private async parseEmail(filePath: string): Promise<ParsedEmail> {
-    try {
-      const emailContent = await fs.promises.readFile(filePath);
-      return simpleParser(emailContent);
-    } catch (error) {
-      this.logger.error(`Error reading email file: ${error.message}`);
-      throw new Error(`Failed to read email file: ${error.message}`);
-    }
-  }
-
-  private async extractJsonContent(email: ParsedEmail): Promise<any | null> {
+  private async extractJsonContent(email: any): Promise<Record<string, any> | null> {
     // Check for JSON attachment
     const jsonAttachment = this.findJsonAttachment(email.attachments);
     if (jsonAttachment) {
@@ -78,9 +58,7 @@ export class EmailParserService {
     }
   }
 
-  private findJsonAttachment(
-    attachments: EmailAttachment[],
-  ): EmailAttachment | undefined {
+  private findJsonAttachment(attachments: any[]): any {
     return attachments.find(
       (attachment) => attachment.contentType === 'application/json',
     );
@@ -100,7 +78,7 @@ export class EmailParserService {
 
   private async findJsonLinkInWebpage(url: string): Promise<string | null> {
     try {
-      const response = await axios.get(url);
+      const response = await this.httpClient.get(url);
       const $ = cheerio.load(response.data);
 
       // Check if we're on a GitHub page
@@ -140,7 +118,7 @@ export class EmailParserService {
   private async fetchJsonFromUrl(url: string): Promise<any> {
     this.logger.log(`Fetching JSON from URL: ${url}`);
     try {
-      const response = await axios.get(url, {
+      const response = await this.httpClient.get(url, {
         headers: { Accept: 'application/json' },
       });
 
@@ -162,10 +140,7 @@ export class EmailParserService {
       return response.data;
     } catch (error) {
       this.logger.error(`Error fetching JSON from URL: ${error.message}`);
-      throw new HttpException(
-        `Failed to fetch JSON: ${error.message}`,
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new Error(`Failed to fetch JSON: ${error.message}`);
     }
   }
 }

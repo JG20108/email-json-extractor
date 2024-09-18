@@ -1,13 +1,10 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { simpleParser } from 'mailparser';
+import { simpleParser, ParsedMail } from 'mailparser';
 import * as fs from 'fs';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { ParsedEmailDto } from './dto/parsed-email.dto';
-import {
-  ParsedEmail,
-  EmailAttachment,
-} from './interfaces/email-parser.interface';
+import { ParsedEmail, EmailAttachment } from './interfaces/email-parser.interface';
 
 @Injectable()
 export class EmailParserService {

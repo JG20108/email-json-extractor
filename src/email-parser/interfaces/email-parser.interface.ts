@@ -1,11 +1,5 @@
-export interface EmailAttachment {
-  filename: string;
-  content: Buffer;
-  contentType: string;
-}
+import { ParsedMail, Attachment } from 'mailparser';
 
-export interface ParsedEmail {
-  text: string;
-  html: string;
-  attachments: EmailAttachment[];
-}
+export interface ParsedEmail extends ParsedMail {}
+
+export interface EmailAttachment extends Attachment {}

@@ -1,0 +1,8 @@
+From: sender@example.com
+To: recipient@example.com
+Subject: Test Email with JSON
+
+This is a test email with a link to a JSON file:
+https://microsoftedge.github.io/Demos/json-dummy-data/64KB.json
+
+Please extract the JSON from this source.

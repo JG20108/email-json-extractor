@@ -1,3 +1,3 @@
 export class ParsedEmailDto {
-  jsonContent: any;
+  jsonContent: Record<string, any>;
 }

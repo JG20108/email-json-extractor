@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { simpleParser } from 'mailparser';
+import { simpleParser, Attachment } from 'mailparser';
 import * as cheerio from 'cheerio';
 import {
   IEmailParserRepository,
@@ -70,7 +70,7 @@ export class EmailParserRepository implements IEmailParserRepository {
     }
   }
 
-  private findJsonAttachment(attachments: any[]): any {
+  private findJsonAttachment(attachments: Attachment[]): Attachment | null {
     this.logger.log(`Number of attachments: ${attachments.length}`);
     for (const attachment of attachments) {
       this.logger.log(
@@ -106,7 +106,7 @@ export class EmailParserRepository implements IEmailParserRepository {
 
   private async findJsonLinkInWebpage(url: string): Promise<string | null> {
     try {
-      const response = await this.httpClient.get(url);
+      const response = await this.httpClient.get<string>(url);
       const $ = cheerio.load(response.data);
 
       // Check for JSON content in the page
@@ -151,8 +151,7 @@ export class EmailParserRepository implements IEmailParserRepository {
     }
   }
 
-  private async fetchJsonFromUrl(url: string): Promise<any> {
-    // CHANGE TO ANY
+  private async fetchJsonFromUrl(url: string): Promise<Record<string, any>> {
     this.logger.log(`Fetching JSON from URL: ${url}`);
     try {
       const response = await this.httpClient.get(url, {

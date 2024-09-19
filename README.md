@@ -1,85 +1,56 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Email JSON Extractor
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Email JSON Extractor is a NestJS application that parses emails and extracts JSON content from various sources within the email, including attachments, body links, and webpage links.
 
-## Project setup
+## Features
 
-```bash
-$ yarn install
-```
+- Extract JSON from email attachments
+- Parse JSON from links in email body
+- Fetch and parse JSON from webpage links found in emails
+- Robust error handling and logging
 
-## Compile and run the project
+## Architecture
 
-```bash
-# development
-$ yarn run start
+This project uses a hexagonal architecture (also known as ports and adapters) to separate concerns and improve maintainability. The architecture is divided into three main layers:
 
-# watch mode
-$ yarn run start:dev
+1. **Domain**: Contains business logic and entities
+2. **Application**: Houses use cases and DTOs
+3. **Infrastructure**: Implements adapters for external services and repositories
 
-# production mode
-$ yarn run start:prod
-```
+### Why Hexagonal Architecture?
 
-## Run tests
+Hexagonal architecture offers several benefits:
 
-```bash
-# unit tests
-$ yarn run test
+1. **Separation of concerns**: Business logic is isolated from external dependencies.
+2. **Testability**: Core business logic can be tested without external dependencies.
+3. **Flexibility**: Easy to swap out external implementations (e.g., switching from file system to cloud storage).
+4. **Maintainability**: Changes in one layer don't affect others, making the codebase easier to maintain.
 
-# e2e tests
-$ yarn run test:e2e
+### Relation to Microservices
 
-# test coverage
-$ yarn run test:cov
-```
+While this project is a monolithic application, its hexagonal architecture makes it well-suited for potential migration to a microservices architecture:
 
-## Resources
+1. **Clear boundaries**: The separation of concerns allows for easy extraction of functionalities into separate services.
+2. **Dependency inversion**: The use of interfaces (ports) makes it easier to adapt to different implementations across services.
+3. **Scalability**: Individual components can be scaled independently when moved to separate services.
 
-Check out a few resources that may come in handy when working with NestJS:
+## Running the Application
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+To start the application in development mode:
+bash
+yarn start:dev
 
-## Support
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Testing
 
-## Stay in touch
+To run the tests:
+bash
+yarn test:e2e
+yarn jest
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
+## Acknowledgments
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Special thanks to the NestJS community for their support and resources.

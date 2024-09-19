@@ -1,0 +1,6 @@
+From: sender@example.com
+To: recipient@example.com
+Subject: Test Email with JSON Link
+
+This is a test email with a direct link to a JSON file:
+https://api.github.com/users/github

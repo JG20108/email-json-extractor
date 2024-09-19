@@ -1,43 +1,39 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EmailParserController } from '../email-parser.controller';
-import { EmailParserService } from '../../../email-parser/email-parser.service';
+import { ParseEmailUseCase } from '../../../application/use-cases/parse-email.use-case';
 import { ParsedEmailDto } from '../../../application/dto/parsed-email.dto';
 import * as path from 'path';
 
 describe('EmailParserController', () => {
   let controller: EmailParserController;
-  let service: EmailParserService;
+  let parseEmailUseCase: ParseEmailUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EmailParserController],
       providers: [
         {
-          provide: EmailParserService,
+          provide: ParseEmailUseCase,
           useValue: {
-            parseEmailAndExtractJson: jest.fn(),
+            execute: jest.fn(),
           },
         },
       ],
     }).compile();
 
     controller = module.get<EmailParserController>(EmailParserController);
-    service = module.get<EmailParserService>(EmailParserService);
+    parseEmailUseCase = module.get<ParseEmailUseCase>(ParseEmailUseCase);
   });
 
   describe('parseEmail', () => {
-    it('should call service.parseEmailAndExtractJson with correct path', async () => {
-      const mockPath = path.join('test', 'test.eml');
+    it('should call parseEmailUseCase.execute with correct path', async () => {
+      const mockPath = 'test/test.eml';
       const mockResult: ParsedEmailDto = { jsonContent: { test: 'data' } };
-      (service.parseEmailAndExtractJson as jest.Mock).mockResolvedValue(
-        mockResult,
-      );
+      (parseEmailUseCase.execute as jest.Mock).mockResolvedValue(mockResult);
 
       const result = await controller.parseEmail({ path: mockPath });
 
-      expect(service.parseEmailAndExtractJson).toHaveBeenCalledWith(
-        expect.stringContaining(mockPath),
-      );
+      expect(parseEmailUseCase.execute).toHaveBeenCalledWith(expect.stringMatching(/test[/\\]test\.eml$/));
       expect(result).toEqual(mockResult);
     });
   });

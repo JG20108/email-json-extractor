@@ -4,8 +4,8 @@ import { IHttpClient } from '../../domain/interfaces/email-parser.interface';
 
 @Injectable()
 export class HttpClientAdapter implements IHttpClient {
-  async get(url: string): Promise<any> {
-    const response = await axios.get(url);
-    return response.data;
+  async get(url: string, config?: any): Promise<any> {
+    const response = await axios.get(url, config);
+    return response;
   }
 }

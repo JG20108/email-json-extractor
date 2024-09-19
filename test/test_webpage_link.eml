@@ -1,0 +1,6 @@
+From: sender@example.com
+To: recipient@example.com
+Subject: Test Email with Webpage Link
+
+This is a test email with a link to a webpage containing a JSON link:
+https://github.com/microsoft/vscode/blob/main/package.json

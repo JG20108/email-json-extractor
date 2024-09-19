@@ -1,10 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { simpleParser } from 'mailparser';
 import * as cheerio from 'cheerio';
 import {
   IEmailParserRepository,
   IFileSystem,
   IHttpClient,
+  FILE_SYSTEM,
+  HTTP_CLIENT,
 } from '../../domain/interfaces/email-parser.interface';
 import { ParsedEmail } from '../../domain/entities/parsed-email.entity';
 
@@ -13,7 +15,9 @@ export class EmailParserRepository implements IEmailParserRepository {
   private readonly logger = new Logger(EmailParserRepository.name);
 
   constructor(
+    @Inject(FILE_SYSTEM)
     private readonly fileSystem: IFileSystem,
+    @Inject(HTTP_CLIENT)
     private readonly httpClient: IHttpClient,
   ) {}
 
@@ -24,12 +28,18 @@ export class EmailParserRepository implements IEmailParserRepository {
     return new ParsedEmail(jsonContent);
   }
 
-  private async extractJsonContent(email: any): Promise<Record<string, any> | null> {
-    // Check for JSON attachment
-    const jsonAttachment = this.findJsonAttachment(email.attachments);
-    if (jsonAttachment) {
-      this.logger.log('JSON attachment found');
-      return JSON.parse(jsonAttachment.content.toString());
+  private async extractJsonContent(
+    email: any,
+  ): Promise<Record<string, any> | null> {
+    // Check for JSON in email text (which includes the attachment content in this case)
+    const jsonMatch = email.text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const jsonContent = JSON.parse(jsonMatch[0]);
+        return jsonContent;
+      } catch (e) {
+        this.logger.error(`Error parsing JSON from email text: ${e.message}`);
+      }
     }
 
     // Check for JSON link in email body
@@ -52,21 +62,39 @@ export class EmailParserRepository implements IEmailParserRepository {
 
     // Try to parse the email body itself as JSON
     try {
-      return JSON.parse(email.text);
+      const jsonContent = JSON.parse(email.text);
+      return jsonContent;
     } catch (e) {
+      this.logger.warn('No JSON content found in email');
       return null;
     }
   }
 
   private findJsonAttachment(attachments: any[]): any {
-    return attachments.find(
-      (attachment) => attachment.contentType === 'application/json',
-    );
+    this.logger.log(`Number of attachments: ${attachments.length}`);
+    for (const attachment of attachments) {
+      this.logger.log(
+        `Checking attachment: ${attachment.filename}, Content-Type: ${attachment.contentType}`,
+      );
+      this.logger.log(
+        `Attachment content: ${attachment.content.toString('utf8')}`,
+      );
+      if (
+        attachment.contentType === 'application/json' ||
+        (attachment.filename && attachment.filename.endsWith('.json'))
+      ) {
+        this.logger.log(`JSON attachment found: ${attachment.filename}`);
+        return attachment;
+      }
+    }
+    this.logger.warn('No JSON attachment found');
+    return null;
   }
 
   private findJsonLinkInBody(body: string): string | null {
-    const jsonLinkRegex = /https?:\/\/.*\.json/i;
+    const jsonLinkRegex = /https?:\/\/.*\.json|https?:\/\/api\.github\.com\S*/i;
     const match = body.match(jsonLinkRegex);
+    this.logger.log(`JSON link match: ${match ? match[0] : 'None'}`);
     return match ? match[0] : null;
   }
 
@@ -116,6 +144,7 @@ export class EmailParserRepository implements IEmailParserRepository {
   }
 
   private async fetchJsonFromUrl(url: string): Promise<any> {
+    // CHANGE TO ANY
     this.logger.log(`Fetching JSON from URL: ${url}`);
     try {
       const response = await this.httpClient.get(url, {

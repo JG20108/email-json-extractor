@@ -9,5 +9,10 @@ export interface IFileSystem {
 }
 
 export interface IHttpClient {
-  get(url: string): Promise<any>;
+  get(url: string, config?: any): Promise<any>;
 }
+
+// CONSTANTS FILE
+export const EMAIL_PARSER_REPOSITORY = 'EMAIL_PARSER_REPOSITORY';
+export const FILE_SYSTEM = 'FILE_SYSTEM';
+export const HTTP_CLIENT = 'HTTP_CLIENT';

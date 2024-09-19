@@ -8,15 +8,15 @@ Email JSON Extractor is a NestJS application that parses emails and extracts JSO
 https://www.youtube.com/watch?v=K1i7HuKUdIo
 
 ## Documentation API Endpoints
-Parse Email Endpoint
+- Parse Email Endpoint
 GET /email-parser/parse
 Parses an email file and extracts JSON content.
-Query Parameters
+- Query Parameters
 path: The path to the email file to be parsed.
-Example Request
+- Example Request
 GET /email-parser/parse?path=test/test_attachment.eml
 
-Example Response
+- Example Response
 {
   "jsonContent": {
     "name": "John Doe",
@@ -60,16 +60,14 @@ While this project is a monolithic application, its hexagonal architecture makes
 ## Running the Application
 
 To start the application in development mode:
-bash
-yarn start:dev
+- yarn start:dev
 
 
 ## Testing
 
 To run the tests:
-bash
-yarn test:e2e
-yarn jest
+- yarn test:e2e
+- yarn jest
 
 
 ## Acknowledgments

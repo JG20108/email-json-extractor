@@ -1,0 +1,16 @@
+From: sender@example.com
+To: recipient@example.com
+Subject: Test Email with JSON Attachment
+
+This is a test email with a JSON attachment.
+
+--boundary
+Content-Type: application/json; name="data.json"
+Content-Disposition: attachment; filename="data.json"
+
+{
+  "name": "John Doe",
+  "age": 30,
+  "city": "New York"
+}
+--boundary--

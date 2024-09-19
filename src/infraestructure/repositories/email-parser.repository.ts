@@ -109,31 +109,39 @@ export class EmailParserRepository implements IEmailParserRepository {
       const response = await this.httpClient.get(url);
       const $ = cheerio.load(response.data);
 
-      // Check if we're on a GitHub page
-      if (url.includes('github.com')) {
-        // Find the 'Raw' button link
-        const rawLink = $('a[data-testid="raw-button"]').attr('href');
-        if (rawLink) {
-          return `https://github.com${rawLink}`;
-        }
-        // If 'Raw' button is not found, try to find the content directly
-        const jsonContent = $('.blob-code-inner').text();
-        if (jsonContent) {
-          try {
-            JSON.parse(jsonContent);
-            return url; // Return the original URL if we found valid JSON content
-          } catch (e) {
-            // Not valid JSON, continue to fallback logic
-          }
+      // Check for JSON content in the page
+      const jsonContent = $('pre').text();
+      if (jsonContent) {
+        try {
+          JSON.parse(jsonContent);
+          return url; // Return the original URL if we found valid JSON content
+        } catch (e) {
+          // Not valid JSON, continue to other checks
         }
       }
 
-      // Fallback to previous logic
+      // Check for links to JSON files
       const jsonLink = $('a[href$=".json"]').attr('href');
       if (jsonLink) {
         return jsonLink.startsWith('http')
           ? jsonLink
           : new URL(jsonLink, url).toString();
+      }
+
+      // Check for API endpoints
+      const apiLink = $('a[href*="api"]').attr('href');
+      if (apiLink) {
+        return apiLink.startsWith('http')
+          ? apiLink
+          : new URL(apiLink, url).toString();
+      }
+
+      // GitHub-specific check (keep this for backward compatibility)
+      if (url.includes('github.com')) {
+        const rawLink = $('a[data-testid="raw-button"]').attr('href');
+        if (rawLink) {
+          return `https://github.com${rawLink}`;
+        }
       }
 
       return null;

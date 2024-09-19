@@ -7,6 +7,24 @@ Email JSON Extractor is a NestJS application that parses emails and extracts JSO
 ## Small Video Rundown
 https://www.youtube.com/watch?v=K1i7HuKUdIo
 
+## Documentation API Endpoints
+Parse Email Endpoint
+GET /email-parser/parse
+Parses an email file and extracts JSON content.
+Query Parameters
+path: The path to the email file to be parsed.
+Example Request
+GET /email-parser/parse?path=test/test_attachment.eml
+
+Example Response
+{
+  "jsonContent": {
+    "name": "John Doe",
+    "age": 30,
+    "city": "New York"
+  }
+}
+
 ## Features
 
 - Extract JSON from email attachments

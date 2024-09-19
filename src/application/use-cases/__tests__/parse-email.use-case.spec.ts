@@ -50,13 +50,18 @@ describe('ParseEmailUseCase', () => {
       );
     });
 
-    it('should throw HttpException on error', async () => {
+    it('should throw HttpException on error (expected test error)', async () => {
+      const expectedErrorMessage =
+        'Expected test error: simulating email parsing failure';
       (repository.parseEmail as jest.Mock).mockRejectedValue(
-        new Error('Test error'),
+        new Error(expectedErrorMessage),
       );
 
       await expect(useCase.execute('test.eml')).rejects.toThrow(
-        new HttpException('Test error', HttpStatus.INTERNAL_SERVER_ERROR),
+        new HttpException(
+          expectedErrorMessage,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        ),
       );
     });
   });

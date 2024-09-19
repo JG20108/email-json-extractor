@@ -1,9 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ParseEmailUseCase } from '../parse-email.use-case';
-import {
-  IEmailParserRepository,
-  EMAIL_PARSER_REPOSITORY,
-} from '../../../domain/interfaces/email-parser.interface';
+import { IEmailParserRepository } from '../../../domain/interfaces/email-parser.interface';
+import { EMAIL_PARSER_REPOSITORY } from '../../../domain/constants';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('ParseEmailUseCase', () => {

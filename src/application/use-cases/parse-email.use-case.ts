@@ -5,10 +5,8 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
-import {
-  IEmailParserRepository,
-  EMAIL_PARSER_REPOSITORY,
-} from '../../domain/interfaces/email-parser.interface';
+import { IEmailParserRepository } from '../../domain/interfaces/email-parser.interface';
+import { EMAIL_PARSER_REPOSITORY } from '../../domain/constants';
 import { ParsedEmailDto } from '../dto/parsed-email.dto';
 import * as path from 'path';
 

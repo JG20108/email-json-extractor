@@ -15,7 +15,3 @@ export interface IHttpClient {
     config?: AxiosRequestConfig,
   ): Promise<AxiosResponse<T>>;
 }
-
-export const EMAIL_PARSER_REPOSITORY = 'EMAIL_PARSER_REPOSITORY';
-export const FILE_SYSTEM = 'FILE_SYSTEM';
-export const HTTP_CLIENT = 'HTTP_CLIENT';

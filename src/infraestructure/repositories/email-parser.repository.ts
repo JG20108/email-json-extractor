@@ -5,9 +5,8 @@ import {
   IEmailParserRepository,
   IFileSystem,
   IHttpClient,
-  FILE_SYSTEM,
-  HTTP_CLIENT,
 } from '../../domain/interfaces/email-parser.interface';
+import { FILE_SYSTEM, HTTP_CLIENT } from '../../domain/constants';
 import { ParsedEmail } from '../../domain/entities/parsed-email.entity';
 
 @Injectable()

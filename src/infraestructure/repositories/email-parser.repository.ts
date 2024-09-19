@@ -1,13 +1,12 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { simpleParser } from 'mailparser';
+import { simpleParser, Attachment } from 'mailparser';
 import * as cheerio from 'cheerio';
 import {
   IEmailParserRepository,
   IFileSystem,
   IHttpClient,
-  FILE_SYSTEM,
-  HTTP_CLIENT,
 } from '../../domain/interfaces/email-parser.interface';
+import { FILE_SYSTEM, HTTP_CLIENT } from '../../domain/constants';
 import { ParsedEmail } from '../../domain/entities/parsed-email.entity';
 
 @Injectable()
@@ -70,7 +69,7 @@ export class EmailParserRepository implements IEmailParserRepository {
     }
   }
 
-  private findJsonAttachment(attachments: any[]): any {
+  private findJsonAttachment(attachments: Attachment[]): Attachment | null {
     this.logger.log(`Number of attachments: ${attachments.length}`);
     for (const attachment of attachments) {
       this.logger.log(
@@ -106,34 +105,42 @@ export class EmailParserRepository implements IEmailParserRepository {
 
   private async findJsonLinkInWebpage(url: string): Promise<string | null> {
     try {
-      const response = await this.httpClient.get(url);
+      const response = await this.httpClient.get<string>(url);
       const $ = cheerio.load(response.data);
 
-      // Check if we're on a GitHub page
-      if (url.includes('github.com')) {
-        // Find the 'Raw' button link
-        const rawLink = $('a[data-testid="raw-button"]').attr('href');
-        if (rawLink) {
-          return `https://github.com${rawLink}`;
-        }
-        // If 'Raw' button is not found, try to find the content directly
-        const jsonContent = $('.blob-code-inner').text();
-        if (jsonContent) {
-          try {
-            JSON.parse(jsonContent);
-            return url; // Return the original URL if we found valid JSON content
-          } catch (e) {
-            // Not valid JSON, continue to fallback logic
-          }
+      // Check for JSON content in the page
+      const jsonContent = $('pre').text();
+      if (jsonContent) {
+        try {
+          JSON.parse(jsonContent);
+          return url; // Return the original URL if we found valid JSON content
+        } catch (e) {
+          // Not valid JSON, continue to other checks
         }
       }
 
-      // Fallback to previous logic
+      // Check for links to JSON files
       const jsonLink = $('a[href$=".json"]').attr('href');
       if (jsonLink) {
         return jsonLink.startsWith('http')
           ? jsonLink
           : new URL(jsonLink, url).toString();
+      }
+
+      // Check for API endpoints
+      const apiLink = $('a[href*="api"]').attr('href');
+      if (apiLink) {
+        return apiLink.startsWith('http')
+          ? apiLink
+          : new URL(apiLink, url).toString();
+      }
+
+      // GitHub-specific check (keep this for backward compatibility)
+      if (url.includes('github.com')) {
+        const rawLink = $('a[data-testid="raw-button"]').attr('href');
+        if (rawLink) {
+          return `https://github.com${rawLink}`;
+        }
       }
 
       return null;
@@ -143,8 +150,7 @@ export class EmailParserRepository implements IEmailParserRepository {
     }
   }
 
-  private async fetchJsonFromUrl(url: string): Promise<any> {
-    // CHANGE TO ANY
+  private async fetchJsonFromUrl(url: string): Promise<Record<string, any>> {
     this.logger.log(`Fetching JSON from URL: ${url}`);
     try {
       const response = await this.httpClient.get(url, {

@@ -8,7 +8,7 @@ import {
   EMAIL_PARSER_REPOSITORY,
   FILE_SYSTEM,
   HTTP_CLIENT,
-} from './domain/interfaces/email-parser.interface';
+} from './domain/constants';
 
 @Module({
   controllers: [EmailParserController],
